@@ -6,7 +6,7 @@ from space import Space
 from teams import Team
 
 
-class Board():
+class Board:
     def __init__(self):
         self.board: list[list[Space]] = []
         for _ in range(8):
@@ -15,7 +15,7 @@ class Board():
                 row.append(Space())
             self.board.append(row)
         self._add_starting_pieces()
-    
+
     def get_space(self, row, col) -> Space:
         row_len = len(self.board)
         col_len = len(self.board[0])
@@ -35,7 +35,7 @@ class Board():
         return display_str
 
     def get_possible_moves(self, game):
-        moves: list[Move] = [] 
+        moves: list[Move] = []
         for fromRow, row in enumerate(self.board):
             for fromCol, space in enumerate(row):
                 if space.is_empty():
@@ -52,19 +52,18 @@ class Board():
                         moves.append(Move(fromRow, fromCol, toRow, toCol))
         return moves
 
-    
     def _get_possible_destinations(self, row: int, col: int):
         standard_destinations = [
             (row + 1, col + 1),
             (row + 1, col + -1),
             (row + -1, col + 1),
-            (row + -1, col + -1)
+            (row + -1, col + -1),
         ]
         jump_destinations = [
             (row + 2, col + 2),
             (row + 2, col + -2),
             (row + -2, col + 2),
-            (row + -2, col + -2)
+            (row + -2, col + -2),
         ]
         return standard_destinations + jump_destinations
 
@@ -92,14 +91,13 @@ class Board():
             self.get_space(6, 3),
             self.get_space(6, 5),
             self.get_space(6, 7),
-
             self.get_space(7, 0),
             self.get_space(7, 2),
             self.get_space(7, 4),
             self.get_space(7, 6),
         ]
         for space in white_board:
-            space.add_piece(Piece(PieceDirection.DOWN, Team.WHITE))
-        
+            space.add_piece(Piece(direction=PieceDirection.DOWN, team=Team.WHITE))
+
         for space in black_board:
-            space.add_piece(Piece(PieceDirection.UP, Team.BLACK))
+            space.add_piece(Piece(direction=PieceDirection.UP, team=Team.BLACK))

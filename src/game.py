@@ -5,14 +5,15 @@ from move import Move
 from space import Space
 from teams import Team
 
-class Game():
-    
+
+class Game:
+
     def __init__(self):
         self.board = Board()
         self.turn = Team.WHITE
         self.must_double_jump_coordinate = None
         self.winner = None
-    
+
     def move(self, move: Move):
         current_team = self.turn
         boardMove = BoardMove(move, self)
@@ -30,19 +31,19 @@ class Game():
 
     def set_must_double_jump_next(self, row, col):
         self.must_double_jump_coordinate = (row, col)
-    
+
     def clear_double_jump(self):
         self.must_double_jump_coordinate = None
-    
+
     def change_turn(self):
         self.must_double_jump_coordinate = None
         if self.turn == Team.WHITE:
             self.turn = Team.BLACK
         else:
             self.turn = Team.WHITE
-    
+
     def get_possible_moves(self):
-        return self.board.get_possible_moves(self) 
+        return self.board.get_possible_moves(self)
 
     def is_over(self):
         return self.winner is not None
@@ -52,4 +53,3 @@ class Game():
             return
         possible_moves = self.get_possible_moves()
         self.move(random.choice(possible_moves))
-
