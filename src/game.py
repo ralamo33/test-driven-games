@@ -1,4 +1,5 @@
 import random
+from typing import Optional
 from board import Board
 from boardMove import BoardMove
 from move import Move
@@ -11,13 +12,15 @@ class Game:
     def __init__(self):
         self.board = Board()
         self.turn = Team.WHITE
-        self.must_double_jump_coordinate = None
+        self.must_double_jump_coordinate: Optional[int, int] = None
         self.winner = None
 
     def move(self, move: Move):
         current_team = self.turn
-        boardMove = BoardMove(move, self)
-        (is_valid, message) = boardMove.handle_move()
+        boardMove = BoardMove(move=move, game=self)
+        (is_valid, message) = boardMove.handle_move(
+            self.turn, self.must_double_jump_coordinate
+        )
         if not is_valid:
             raise ValueError(message)
         if len(self.get_possible_moves()) == 0:

@@ -1,5 +1,7 @@
 from boardMove import BoardMove
-from move import Move
+import boardMove
+from move import Move, PotentialMove
+from move_status import MoveStatus
 from piece import Piece
 from pieceDirection import PieceDirection
 from space import Space
@@ -36,20 +38,50 @@ class Board:
 
     def get_possible_moves(self, game):
         moves: list[Move] = []
-        for fromRow, row in enumerate(self.board):
-            for fromCol, space in enumerate(row):
+        for from_row, row in enumerate(self.board):
+            for from_col, space in enumerate(row):
                 if space.is_empty():
                     continue
                 piece = space.get_piece()
                 if not piece.on_team(game.turn):
                     continue
-                destinations = self._get_possible_destinations(fromRow, fromCol)
+                destinations = self._get_possible_destinations(from_row, from_col)
                 for destination in destinations:
-                    (toRow, toCol) = destination
-                    boardMove = BoardMove(Move(fromRow, fromCol, toRow, toCol), game)
-                    is_valid_with_explanation = boardMove.is_valid_with_explanation()
-                    if is_valid_with_explanation[0]:
-                        moves.append(Move(fromRow, fromCol, toRow, toCol))
+                    (to_row, to_col) = destination
+                    # boardMove = BoardMove(
+                    #     move=PotentialMove(fromRow, fromCol, toRow, toCol), game=game
+                    # )
+                    from_space = self.get_space(from_row, from_col)
+                    to_space = self.get_space(to_row, to_col)
+                    jump_col = (from_col + to_col) // 2
+                    jump_row = (from_row + to_row) // 2
+                    jump_space = self.get_space(jump_row, jump_col)
+                    potential_move = PotentialMove(
+                        from_row=from_row,
+                        from_col=from_col,
+                        from_space=from_space,
+                        to_row=to_row,
+                        to_col=to_col,
+                        to_space=to_space,
+                        jump_space=jump_space,
+                    )
+                    [move_status, explanation] = (
+                        potential_move.is_valid_with_explanation(
+                            game.turn, game.must_double_jump_coordinate
+                        )
+                    )
+                    # [move_status, explanation] = boardMove.is_valid_with_explanation(
+                    #     game.turn, game.must_double_jump_coordinate
+                    # )
+                    if move_status != MoveStatus.INVALID:
+                        moves.append(
+                            Move(
+                                from_row=from_row,
+                                from_col=from_col,
+                                to_row=to_row,
+                                to_col=to_col,
+                            )
+                        )
         return moves
 
     def _get_possible_destinations(self, row: int, col: int):

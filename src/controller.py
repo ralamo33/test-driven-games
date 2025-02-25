@@ -1,6 +1,6 @@
 from board import Board
 from game import Game
-from move import Move
+from move import Move, PotentialMove
 from teams import Team
 
 
@@ -25,10 +25,10 @@ class Controller:
                 try:
                     game.move(
                         Move(
-                            fromRow=from_row,
-                            fromCol=from_col,
-                            toRow=to_row,
-                            toCol=to_col,
+                            from_row=from_row,
+                            from_col=from_col,
+                            to_row=to_row,
+                            to_col=to_col,
                         )
                     )
                 except ValueError as e:

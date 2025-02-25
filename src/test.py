@@ -1,5 +1,4 @@
 import unittest
-from boardMove import BoardMove
 from game import Game
 from move import Move
 from piece import Piece
@@ -77,7 +76,7 @@ class TestGame(unittest.TestCase):
 
     def test_down_valid(self):
         moving_piece = self.game.get_space(2, 1).piece
-        self.game.move(Move(fromRow=2, fromCol=1, toRow=3, toCol=0))
+        self.game.move(Move(from_row=2, from_col=1, to_row=3, to_col=0))
         piece_in_new_space = self.game.get_space(3, 0).piece
         self.assertEqual(moving_piece, piece_in_new_space)
         original_space = self.game.get_space(2, 1)
@@ -85,16 +84,16 @@ class TestGame(unittest.TestCase):
 
     def test_negative_row(self):
         with self.assertRaises(ValueError) as e:
-            self.game.move(Move(fromRow=2, fromCol=1, toRow=-1, toCol=0))
+            self.game.move(Move(from_row=2, from_col=1, to_row=-1, to_col=0))
 
     def test_negative_col(self):
         with self.assertRaises(ValueError) as e:
-            self.game.move(Move(fromRow=2, fromCol=1, toRow=3, toCol=-1))
+            self.game.move(Move(from_row=2, from_col=1, to_row=3, to_col=-1))
 
     def test_wrong_direction(self):
-        self.game.move(Move(fromRow=2, fromCol=1, toRow=3, toCol=0))
+        self.game.move(Move(from_row=2, from_col=1, to_row=3, to_col=0))
         with self.assertRaises(ValueError) as e:
-            self.game.move(Move(fromRow=3, fromCol=0, toRow=2, toCol=1))
+            self.game.move(Move(from_row=3, from_col=0, to_row=2, to_col=1))
 
         self.game.move(Move(5, 0, 4, 1))
         with self.assertRaises(ValueError) as e:
@@ -102,7 +101,7 @@ class TestGame(unittest.TestCase):
 
     def test_destination_over_board(self):
         with self.assertRaises(ValueError) as e:
-            self.game.move(Move(fromRow=2, fromCol=7, toRow=3, toCol=8))
+            self.game.move(Move(from_row=2, from_col=7, to_row=3, to_col=8))
 
     def test_invalid_move_on_board(self):
         fromRow = 2
