@@ -22,73 +22,68 @@ class BoardMove:
 
     def handle_move(
         self, active_team: Team, must_double_jump_coordinate: Optional[tuple[int, int]]
-    ):
+    ) -> Tuple[MoveStatus, str]:
         [move_status, explanation] = self.is_valid_with_explanation(
             active_team, must_double_jump_coordinate
         )
-        is_valid = move_status != MoveStatus.INVALID
-        if not is_valid:
-            return [is_valid, explanation]
+        if move_status == MoveStatus.INVALID:
+            return move_status, explanation
 
         piece = self.from_space.get_piece()
         if abs(self.fromCol - self.toCol) == 2:
             return self._handle_jump(piece)
 
         self._finalize_move(piece)
-        self.game.change_turn()
-        return (True, "")
+        return move_status, ""
 
     def is_valid_with_explanation(
         self, active_team: Team, must_double_jump_coordinate: Optional[tuple[int, int]]
     ) -> Tuple[MoveStatus, str]:
         if self.from_space is None or self.from_space.is_empty():
-            return (MoveStatus.INVALID, "Invalid space selected")
+            return MoveStatus.INVALID, "Invalid space selected"
         if self.destination_space is None:
-            return (MoveStatus.INVALID, "Destination not on board")
+            return MoveStatus.INVALID, "Destination not on board"
         if must_double_jump_coordinate is not None and must_double_jump_coordinate != (
             self.fromRow,
             self.fromCol,
         ):
-            return (MoveStatus.INVALID, "Must perform double jump.")
+            return MoveStatus.INVALID, "Must perform double jump."
 
         piece = self.from_space.get_piece()
 
         if not piece.on_team(active_team):
-            return (MoveStatus.INVALID, "It is not your turn")
+            return MoveStatus.INVALID, "It is not your turn"
 
         move_direction = (
             PieceDirection.DOWN if self.toRow > self.fromRow else PieceDirection.UP
         )
         if not piece.can_move_in_direction(move_direction):
-            return (MoveStatus.INVALID, "Wrong direction")
+            return MoveStatus.INVALID, "Wrong direction"
 
         if not self.destination_space.is_empty():
-            return (MoveStatus.INVALID, "Destination has another piece")
+            return MoveStatus.INVALID, "Destination has another piece"
 
         if (
             abs(self.fromCol - self.toCol) != abs(self.fromRow - self.toRow)
             or abs(self.fromCol - self.toCol) > 2
         ):
-            return (MoveStatus.INVALID, "Wrong destination")
+            return MoveStatus.INVALID, "Wrong destination"
 
         if abs(self.fromCol - self.toCol) == 2:
             if not self._is_valid_jump(piece):
-                return (MoveStatus.INVALID, "No enemy to jump over")
-            return (MoveStatus.JUMP, "")
+                return MoveStatus.INVALID, "No enemy to jump over"
+            return MoveStatus.JUMP, ""
 
-        return (MoveStatus.MOVE, "")
+        return MoveStatus.MOVE, ""
 
-    def _handle_jump(self, piece):
+    def _handle_jump(self, piece) -> tuple[MoveStatus, str]:
         if not self._is_valid_jump(piece):
-            return (False, "No enemy to jump over")
+            return MoveStatus.INVALID, "No enemy to jump over"
         self.jump_space.delete_piece()
         self._finalize_move(piece)
-        self.game.clear_double_jump()
         if self._has_double_jump():
-            self.game.set_must_double_jump_next(self.toRow, self.toCol)
-        else:
-            self.game.change_turn()
-        return (True, "")
+            return MoveStatus.JUMP_WITH_DOUBLE_JUMP, ""
+        return MoveStatus.JUMP, ""
 
     def _is_valid_jump(self, piece):
         if self.jump_space.is_empty() or not self.destination_space.is_empty():
@@ -114,7 +109,8 @@ class BoardMove:
                 self.game,
             )
             [move_status, explanation] = boardMove.is_valid_with_explanation(
-                self.game.turn, self.game.must_double_jump_coordinate
+                self.game.turn, (self.toRow, self.toCol)
+                # self.game.turn, self.game.must_double_jump_coordinate
             )
             if move_status == MoveStatus.JUMP:
                 return True

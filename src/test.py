@@ -50,6 +50,7 @@ class TestComputerPlayer(unittest.TestCase):
             loser = Team.BLACK
         self.game.turn = loser
         self.assertEqual(0, len(self.game.get_possible_moves()))
+        print(self.game.display())
         self.assertTrue(self.game.is_over())
 
 

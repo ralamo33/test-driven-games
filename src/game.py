@@ -1,9 +1,11 @@
 import random
 from typing import Optional
+
 from board import Board
 from boardMove import BoardMove
 from move import Move
 from space import Space
+from move_status import MoveStatus
 from teams import Team
 
 
@@ -17,12 +19,18 @@ class Game:
 
     def move(self, move: Move):
         current_team = self.turn
-        boardMove = BoardMove(move=move, game=self)
-        (is_valid, message) = boardMove.handle_move(
+        board_move = BoardMove(move=move, game=self)
+        (move_status, message) = board_move.handle_move(
             self.turn, self.must_double_jump_coordinate
         )
-        if not is_valid:
-            raise ValueError(message)
+        self.clear_double_jump()
+        match move_status:
+            case MoveStatus.INVALID:
+                raise ValueError(message)
+            case MoveStatus.MOVE | MoveStatus.JUMP:
+                self.change_turn()
+            case MoveStatus.JUMP_WITH_DOUBLE_JUMP:
+                self.must_double_jump_coordinate = (board_move.toRow, board_move.toCol)
         if len(self.get_possible_moves()) == 0:
             self.winner = current_team
 

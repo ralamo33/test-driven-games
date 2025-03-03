@@ -1,8 +1,6 @@
 from typing import Optional
 from pydantic.dataclasses import dataclass
-
 from move_status import MoveStatus
-from piece import Piece
 from pieceDirection import PieceDirection
 from space import Space
 from teams import Team
