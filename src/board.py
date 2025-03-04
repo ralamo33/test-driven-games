@@ -1,5 +1,3 @@
-from boardMove import BoardMove
-import boardMove
 from move import Move, PotentialMove
 from move_status import MoveStatus
 from piece import Piece

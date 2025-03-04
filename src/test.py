@@ -68,7 +68,7 @@ _ _ _ _ _ _ _ _
 b _ b _ b _ b _
 _ b _ b _ b _ b
 b _ b _ b _ b _"""
-        self.assertEqual(starting_display, self.spaces.display())
+        self.assertEqual(starting_display, self.game.display())
 
 
 class TestGame(unittest.TestCase):
