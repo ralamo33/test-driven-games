@@ -1,6 +1,8 @@
 import random
 from typing import Optional
 
+from pydantic import BaseModel
+
 from board import Board
 from boardMove import BoardMove
 from move import Move
@@ -9,17 +11,16 @@ from move_status import MoveStatus
 from teams import Team
 
 
-class Game:
-
-    def __init__(self):
-        self.board = Board()
-        self.turn = Team.WHITE
-        self.must_double_jump_coordinate: Optional[int, int] = None
-        self.winner = None
-
+class Game(BaseModel):
+    board: Board = Board()
+    turn: Team = Team.WHITE
+    must_double_jump_coordinate: Optional[tuple[int, int]] = None
+    winner: Optional[Team] = None
+    
     def move(self, move: Move):
         current_team = self.turn
-        board_move = BoardMove(move=move, board=self.board, active_team=self.turn, must_double_jump_coordinate=self.must_double_jump_coordinate)
+        board_move = BoardMove(from_row=move.from_row, from_col=move.from_col, to_row=move.to_row, to_col=move.to_col,
+                               board=self.board, active_team=self.turn, must_double_jump_coordinate=self.must_double_jump_coordinate)
         (move_status, message) = board_move.handle_move()
         self.clear_double_jump()
         match move_status:

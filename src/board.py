@@ -1,3 +1,7 @@
+from typing import Any
+
+from pydantic import BaseModel
+
 from move import Move, PotentialMove
 from move_status import MoveStatus
 from piece import Piece
@@ -6,9 +10,11 @@ from space import Space
 from teams import Team
 
 
-class Board:
-    def __init__(self):
-        self.board: list[list[Space]] = []
+class Board(BaseModel):
+    board: list[list[Space]] = []
+
+    def __init__(self, /, **data: Any):
+        super().__init__(**data)
         for _ in range(8):
             row = []
             for _ in range(8):
