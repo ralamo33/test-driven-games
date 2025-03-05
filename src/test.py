@@ -13,7 +13,7 @@ class TestComputerPlayer(unittest.TestCase):
 
     # Smaller steppi
     def test_get_starting_moves(self):
-        moves = self.game.get_possible_moves()
+        moves = self.game._get_possible_moves()
         self.assertEqual(7, len(moves))
         self.assertIn(Move(2, 1, 3, 0), moves)
 
@@ -23,11 +23,11 @@ class TestComputerPlayer(unittest.TestCase):
         self.game.move(Move(2, 3, 3, 2))
         self.game.move(Move(5, 2, 4, 3))
         self.game.move(Move(1, 2, 2, 3))
-        moves = self.game.get_possible_moves()
+        moves = self.game._get_possible_moves()
         self.assertEqual(8, len(moves))
 
     def test_computer_player(self):
-        self.game.computer_move()
+        self.game._computer_move()
         movable_cords = [(2, 1), (2, 3), (2, 5), (2, 7)]
         made_move = False
         for cord in movable_cords:
@@ -37,10 +37,10 @@ class TestComputerPlayer(unittest.TestCase):
         self.assertEqual(self.game.turn, Team.BLACK)
 
     def test_end_game(self):
-        self.assertFalse(self.game.is_over())
+        self.assertFalse(self.game._is_over())
         turns_to_end = 0
-        while not self.game.is_over():
-            self.game.computer_move()
+        while not self.game._is_over():
+            self.game._computer_move()
             turns_to_end += 1
         self.assertIn(self.game.winner, [Team.WHITE, Team.BLACK])
 
@@ -49,9 +49,9 @@ class TestComputerPlayer(unittest.TestCase):
         else:
             loser = Team.BLACK
         self.game.turn = loser
-        self.assertEqual(0, len(self.game.get_possible_moves()))
-        print(self.game.display())
-        self.assertTrue(self.game.is_over())
+        self.assertEqual(0, len(self.game._get_possible_moves()))
+        print(self.game._display())
+        self.assertTrue(self.game._is_over())
 
 
 class TestGame(unittest.TestCase):
@@ -68,19 +68,19 @@ _ _ _ _ _ _ _ _
 b _ b _ b _ b _
 _ b _ b _ b _ b
 b _ b _ b _ b _"""
-        self.assertEqual(starting_display, self.game.display())
+        self.assertEqual(starting_display, self.game._display())
 
 
-class TestGame(unittest.TestCase):
+class TestGame2(unittest.TestCase):
     def setUp(self):
         self.game = Game()
 
     def test_down_valid(self):
-        moving_piece = self.game.get_space(2, 1).piece
+        moving_piece = self.game._get_space(2, 1).piece
         self.game.move(Move(from_row=2, from_col=1, to_row=3, to_col=0))
-        piece_in_new_space = self.game.get_space(3, 0).piece
+        piece_in_new_space = self.game._get_space(3, 0).piece
         self.assertEqual(moving_piece, piece_in_new_space)
-        original_space = self.game.get_space(2, 1)
+        original_space = self.game._get_space(2, 1)
         self.assertIsNone(original_space.piece)
 
     def test_negative_row(self):
@@ -127,11 +127,11 @@ class TestGame(unittest.TestCase):
         self.game.move(Move(5, 2, 4, 3))
         self.game.move(Move(1, 2, 2, 3))
 
-        orginal_piece = self.game.get_space(4, 3).piece
+        orginal_piece = self.game._get_space(4, 3).piece
         self.game.move(Move(4, 3, 2, 1))
-        self.assertEqual(orginal_piece, self.game.get_space(2, 1).piece)
-        self.assertIsNone(self.game.get_space(3, 2).piece)
-        self.assertIsNone(self.game.get_space(4, 3).piece)
+        self.assertEqual(orginal_piece, self.game._get_space(2, 1).piece)
+        self.assertIsNone(self.game._get_space(3, 2).piece)
+        self.assertIsNone(self.game._get_space(4, 3).piece)
         self.game.move(Move(2, 3, 3, 4))
 
     def test_cannot_eat_if_destination_filled(self):
@@ -186,7 +186,7 @@ class CrownedTest(unittest.TestCase):
         self.game.move(Move(3, 6, 4, 7))
         self.game.move(Move(1, 0, 0, 1))
 
-        self.crowned_space = self.game.get_space(0, 1)
+        self.crowned_space = self.game._get_space(0, 1)
         self.crowned_piece = self.crowned_space.piece
 
     def test_crown_piece(self):
@@ -212,12 +212,12 @@ class DoubleJumpTests(unittest.TestCase):
         self.game.move(Move(4, 3, 2, 1))
 
     def test_double_jump(self):
-        double_jump_piece = self.game.get_space(1, 0).piece
+        double_jump_piece = self.game._get_space(1, 0).piece
         self.game.move(Move(1, 0, 3, 2))
         self.game.move(Move(3, 2, 5, 0))
-        self.assertEqual(double_jump_piece, self.game.get_space(5, 0).get_piece())
-        self.assertTrue(self.game.get_space(2, 1).is_empty())
-        self.assertTrue(self.game.get_space(4, 1).is_empty())
+        self.assertEqual(double_jump_piece, self.game._get_space(5, 0).get_piece())
+        self.assertTrue(self.game._get_space(2, 1).is_empty())
+        self.assertTrue(self.game._get_space(4, 1).is_empty())
         self.game.move(Move(5, 4, 4, 3))
 
     def test_invalid_double_jump_move(self):
@@ -283,7 +283,6 @@ class TestPiece(unittest.TestCase):
     def test_is_enemy(self):
         self.assertTrue(self.piece.is_enemy(self.upPiece))
         self.assertFalse(self.piece.is_enemy(self.piece))
-
 
 if __name__ == "__main__":
     unittest.main()

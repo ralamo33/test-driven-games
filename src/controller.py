@@ -1,6 +1,6 @@
 from board import Board
 from game import Game
-from move import Move, PotentialMove
+from move import Move
 from teams import Team
 
 
@@ -9,8 +9,8 @@ class Controller:
     def play_checkers(self):
         try:
             game = Game(board=Board(), team=Team.WHITE)
-            while not game.is_over():
-                print(game.display())
+            while not game._is_over():
+                print(game._display())
                 print("\n\n")
                 from_row_and_col = input(
                     "Input the row and column of the piece you want to select, seperated by a comma. You are white.\n"
@@ -35,9 +35,9 @@ class Controller:
                     print(f"\n\n{e}\n\n")
                     continue
                 else:
-                    print(game.display())
+                    print(game._display())
                     print("\n\n")
-                    game.computer_move()
+                    game._computer_move()
 
         except KeyboardInterrupt:
             print("\nThank you for playing checkers with me!")

@@ -74,9 +74,6 @@ class Board(BaseModel):
                             game.turn, game.must_double_jump_coordinate
                         )
                     )
-                    # [move_status, explanation] = boardMove.is_valid_with_explanation(
-                    #     game.turn, game.must_double_jump_coordinate
-                    # )
                     if move_status != MoveStatus.INVALID:
                         moves.append(
                             Move(

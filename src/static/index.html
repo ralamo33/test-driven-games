@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Driven Games - Checkers</title>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <!-- Latest Tailwind CSS v3.4.1 -->
+    <script src="https://cdn.tailwindcss.com?v=3.4.1"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        board: {
+                            dark: '#B85C38',
+                            light: '#E7BC91',
+                        }
+                    },
+                    animation: {
+                        'bounce-short': 'bounce 0.5s ease-in-out 1',
+                        'glow': 'glow 2s ease-in-out infinite'
+                    },
+                    keyframes: {
+                        glow: {
+                            '0%, 100%': { filter: 'brightness(1)' },
+                            '50%': { filter: 'brightness(1.2)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="h-full bg-gradient-to-br from-slate-50 to-slate-200 dark:from-slate-900 dark:to-slate-800 dark:text-white">
+    <div class="min-h-full p-4 container mx-auto max-w-3xl">
+        <header class="mb-8">
+            <h1 class="text-4xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-violet-600 pb-2">
+                Checkers Game
+            </h1>
+        </header>
+        
+        <div class="mb-6 flex justify-center">
+            <button hx-post="/api/games"
+                    hx-target="#game-container"
+                    hx-swap="innerHTML"
+                    class="px-6 py-3 bg-blue-600 text-white rounded-lg 
+                           shadow-lg shadow-blue-500/20
+                           hover:bg-blue-700 hover:shadow-blue-600/30 
+                           active:transform active:scale-95
+                           transition-all duration-200 ease-in-out
+                           font-semibold">
+                New12121 Game
+            </button>
+        </div>
+
+        <div id="game-container" class="space-y-6">
+            <!-- Game will be loaded here -->
+            <div class="text-center p-8 rounded-xl bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm shadow-xl">
+                <p class="text-lg text-slate-600 dark:text-slate-300">Click "New Game" to start playing!</p>
+            </div>
+        </div>
+
+        <template id="game-template">
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-lg space-y-3 mb-8 backdrop-blur-sm">
+                <p class="text-slate-600 dark:text-slate-300">
+                    Game ID: <span class="game-id font-mono bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded"></span>
+                </p>
+                <p class="winner-text text-green-600 dark:text-green-400 font-bold text-lg"></p>
+            </div>
+            <div class="flex justify-center">
+                <div class="relative">
+                    <div class="board grid grid-cols-8 gap-0 bg-board-dark p-3 rounded-lg shadow-xl border-8 border-board-dark"></div>
+                    <!-- Board coordinates -->
+                    <div class="absolute -left-6 top-0 bottom-0 flex flex-col justify-around text-sm font-semibold">
+                        <span>8</span><span>7</span><span>6</span><span>5</span>
+                        <span>4</span><span>3</span><span>2</span><span>1</span>
+                    </div>
+                    <div class="absolute left-0 right-0 -bottom-6 flex justify-around text-sm font-semibold">
+                        <span>A</span><span>B</span><span>C</span><span>D</span>
+                        <span>E</span><span>F</span><span>G</span><span>H</span>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <script>
+            let selectedSpace = null;
+            let currentGameId = null;
+
+            htmx.on('htmx:afterRequest', function(evt) {
+                if (evt.detail.requestConfig.url === '/api/games') {
+                    const response = JSON.parse(evt.detail.xhr.response);
+                    currentGameId = response.game_id;
+                    renderGame(response);
+                } else if (evt.detail.requestConfig.url.includes('/move')) {
+                    const response = JSON.parse(evt.detail.xhr.response);
+                    renderBoard(response.board);
+                    updateGameInfo(response);
+                }
+            });
+
+            function renderGame(gameData) {
+                const template = document.getElementById('game-template');
+                const container = document.getElementById('game-container');
+                container.innerHTML = template.innerHTML;
+                
+                container.querySelector('.game-id').textContent = gameData.game_id;
+                container.querySelector('.turn').textContent = gameData.turn;
+                
+                renderBoard(gameData.board);
+            }
+
+            function renderBoard(boardStr) {
+                const board = document.querySelector('.board');
+                board.innerHTML = '';
+                
+                const rows = boardStr.split('\n');
+                rows.forEach((row, i) => {
+                    const cells = row.split(' ');
+                    cells.forEach((cell, j) => {
+                        const space = document.createElement('div');
+                        const isLight = (i + j) % 2 === 0;
+                        space.className = `w-16 h-16 flex items-center justify-center cursor-pointer select-none
+                            transition-all duration-200 ease-in-out relative
+                            ${isLight ? 'bg-board-light' : 'bg-board-dark'}`;
+                        
+                        if (cell !== '_') {
+                            const piece = document.createElement('div');
+                            const isBlack = cell.toLowerCase() === 'b';
+                            const isKing = cell === cell.toUpperCase();
+                            
+                            piece.className = `w-12 h-12 rounded-full flex items-center justify-center
+                                ${isBlack ? 'bg-gray-900' : 'bg-gray-100'}
+                                border-4 ${isBlack ? 'border-gray-800' : 'border-white'}
+                                shadow-lg transition-transform relative
+                                ${isKing ? 'animate-glow' : ''}`;
+
+                            // Add inner circle for non-king pieces
+                            if (!isKing) {
+                                const innerCircle = document.createElement('div');
+                                innerCircle.className = `absolute w-8 h-8 rounded-full
+                                    ${isBlack ? 'bg-gray-800' : 'bg-white'}
+                                    border-2 ${isBlack ? 'border-gray-700' : 'border-gray-200'}`;
+                                piece.appendChild(innerCircle);
+                            } else {
+                                // Add crown symbol for king pieces
+                                const crown = document.createElement('div');
+                                crown.className = 'text-2xl';
+                                crown.innerHTML = '♔';
+                                crown.style.color = isBlack ? '#FFD700' : '#FFA500';
+                                piece.appendChild(crown);
+                            }
+                            
+                            space.appendChild(piece);
+                        }
+                        
+                        space.dataset.row = i;
+                        space.dataset.col = j;
+                        space.dataset.selected = 'false';
+                        space.onclick = handleSpaceClick;
+                        board.appendChild(space);
+                    });
+                });
+            }
+
+            function updateGameInfo(gameData) {
+                const turn = document.querySelector('.turn');
+                const winnerText = document.querySelector('.winner-text');
+                
+                turn.textContent = gameData.turn;
+                if (gameData.is_over) {
+                    winnerText.textContent = `Winner: ${gameData.winner}!`;
+                    winnerText.classList.add('animate-bounce-short');
+                } else {
+                    winnerText.textContent = '';
+                }
+            }
+
+            function handleSpaceClick(event) {
+                const space = event.target.closest('div[data-row]');
+                if (!space) return;
+                
+                const row = parseInt(space.dataset.row);
+                const col = parseInt(space.dataset.col);
+
+                // Remove previous selection highlight
+                const prevSelected = document.querySelector('[data-selected="true"]');
+                if (prevSelected) {
+                    prevSelected.classList.remove('ring-4', 'ring-yellow-400', 'ring-opacity-50');
+                    prevSelected.dataset.selected = 'false';
+                }
+
+                if (!selectedSpace) {
+                    // First click - select piece
+                    const piece = space.querySelector('div');
+                    if (piece) {
+                        selectedSpace = { row, col };
+                        space.dataset.selected = 'true';
+                        space.classList.add('ring-4', 'ring-yellow-400', 'ring-opacity-50');
+                    }
+                } else {
+                    // Second click - attempt move
+                    const moveData = {
+                        from_row: selectedSpace.row,
+                        from_col: selectedSpace.col,
+                        to_row: row,
+                        to_col: col
+                    };
+
+                    selectedSpace = null;
+
+                    htmx.ajax('POST', `/api/games/${currentGameId}/move`, {
+                        values: moveData,
+                        swap: 'none'
+                    });
+                }
+            }
+        </script>
+    </div>
+</body>
+</html> 
