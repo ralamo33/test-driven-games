@@ -20,7 +20,6 @@ def black_piece():
 @pytest.fixture
 def crowned_game():
     game = Game()
-    # Setup moves to get a crowned piece
     moves = [
         (2, 1, 3, 0), (5, 0, 4, 1),
         (2, 3, 3, 2), (5, 2, 4, 3),
