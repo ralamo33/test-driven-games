@@ -12,12 +12,6 @@ app = FastAPI()
 # Store active games in memory (in a real app, you'd use a database)
 games: Dict[str, Game] = {}
 
-class MoveRequest(BaseModel):
-    from_row: int
-    from_col: int
-    to_row: int
-    to_col: int
-
 # Mount the static directory
 static_dir = os.path.join(os.path.dirname(__file__), "static")
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
@@ -38,18 +32,13 @@ async def create_game():
     })
 
 @app.post("/api/games/{game_id}/move")
-async def make_move(game_id: str, move: MoveRequest):
+async def make_move(game_id: str, move: Move):
     if game_id not in games:
         raise HTTPException(status_code=404, detail="Game not found")
     
     game = games[game_id]
     try:
-        game.move(Move(
-            from_row=move.from_row,
-            from_col=move.from_col,
-            to_row=move.to_row,
-            to_col=move.to_col
-        ))
+        game.move(move)
         
         return JSONResponse({
             "board": game._display(),
