@@ -1,13 +1,13 @@
 import pytest
-from game import Game
-from move import Move
-from piece import Piece
-from pieceDirection import PieceDirection
-from teams import Team
+from game_session import GameSession
+from game.move import Move
+from game.piece import Piece
+from game.pieceDirection import PieceDirection
+from game.teams import Team
 
 @pytest.fixture
 def game():
-    return Game()
+    return GameSession()
 
 @pytest.fixture
 def white_piece():
@@ -19,7 +19,7 @@ def black_piece():
 
 @pytest.fixture
 def crowned_game():
-    game = Game()
+    game = GameSession()
     moves = [
         (2, 1, 3, 0), (5, 0, 4, 1),
         (2, 3, 3, 2), (5, 2, 4, 3),

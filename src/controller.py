@@ -1,14 +1,14 @@
-from board import Board
-from game import Game
-from move import Move
-from teams import Team
+from game.board import Board
+from game_session import GameSession
+from game.move import Move
+from game.teams import Team
 
 
 class Controller:
 
     def play_checkers(self):
         try:
-            game = Game(board=Board(), team=Team.WHITE)
+            game = GameSession(board=Board(), team=Team.WHITE)
             while not game._is_over():
                 print(game._display())
                 print("\n\n")

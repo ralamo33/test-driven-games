@@ -3,14 +3,14 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from pydantic import BaseModel
 import os
-from game import Game
-from move import Move
+from game_session import GameSession
+from game.move import Move
 from typing import Dict, Optional
 
 app = FastAPI()
 
 # Store active games in memory (in a real app, you'd use a database)
-games: Dict[str, Game] = {}
+games: Dict[str, GameSession] = {}
 
 # Mount the static directory
 static_dir = os.path.join(os.path.dirname(__file__), "static")
@@ -22,7 +22,7 @@ async def root():
 
 @app.post("/api/games")
 async def create_game():
-    game = Game()
+    game = GameSession()
     game_id = str(len(games) + 1)  # Simple ID generation
     games[game_id] = game
     return JSONResponse({

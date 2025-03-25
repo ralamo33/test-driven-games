@@ -1,5 +1,5 @@
 import pytest
-from move import Move
+from game.move import Move
 
 def test_down_valid(game):
     moving_piece = game._get_space(2, 1).piece

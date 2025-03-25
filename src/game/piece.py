@@ -1,6 +1,6 @@
 from pydantic import BaseModel
-from pieceDirection import PieceDirection
-from teams import Team
+from game.pieceDirection import PieceDirection
+from game.teams import Team
 
 
 class Piece(BaseModel):

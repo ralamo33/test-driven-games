@@ -1,7 +1,7 @@
 from typing import Optional
 from pydantic import BaseModel
-from piece import Piece
-from teams import Team
+from game.piece import Piece
+from game.teams import Team
 
 
 class Space(BaseModel):

@@ -3,15 +3,15 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from board import Board
-from boardMove import BoardMove
-from move import Move
-from space import Space
+from game.board import Board
+from game.boardMove import BoardMove
+from game.move import Move
+from game.space import Space
 from move_status import MoveStatus
-from teams import Team
+from game.teams import Team
 
 
-class Game(BaseModel):
+class GameSession(BaseModel):
     board: Board = Board()
     turn: Team = Team.WHITE
     must_double_jump_coordinate: Optional[tuple[int, int]] = None

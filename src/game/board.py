@@ -2,12 +2,12 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from move import Move, PotentialMove
+from game.move import Move, PotentialMove
 from move_status import MoveStatus
-from piece import Piece
-from pieceDirection import PieceDirection
-from space import Space
-from teams import Team
+from game.piece import Piece
+from game.pieceDirection import PieceDirection
+from game.space import Space
+from game.teams import Team
 
 
 class Board(BaseModel):

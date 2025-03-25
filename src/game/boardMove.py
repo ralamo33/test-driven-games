@@ -3,11 +3,11 @@ from typing import Optional, Tuple, Any
 from pydantic import BaseModel, computed_field
 
 from move_status import MoveStatus
-from piece import Piece
-from pieceDirection import PieceDirection
-from board import Board
-from space import Space
-from teams import Team
+from game.piece import Piece
+from game.pieceDirection import PieceDirection
+from game.board import Board
+from game.space import Space
+from game.teams import Team
 
 class BoardMove(BaseModel):
     to_row: int
