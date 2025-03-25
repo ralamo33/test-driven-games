@@ -19,8 +19,12 @@ class GameSession(BaseModel):
     
     def move(self, move: Move):
         current_team = self.turn
-        board_move = BoardMove(from_row=move.from_row, from_col=move.from_col, to_row=move.to_row, to_col=move.to_col,
-                               board=self.board, active_team=self.turn, must_double_jump_coordinate=self.must_double_jump_coordinate)
+        board_move = BoardMove(
+            move=move,
+            board=self.board,
+            active_team=self.turn,
+            must_double_jump_coordinate=self.must_double_jump_coordinate
+        )
         (move_status, message) = board_move.handle_move()
         self._clear_double_jump()
         match move_status:
@@ -29,7 +33,7 @@ class GameSession(BaseModel):
             case MoveStatus.MOVE | MoveStatus.JUMP:
                 self._change_turn()
             case MoveStatus.JUMP_WITH_DOUBLE_JUMP:
-                self.must_double_jump_coordinate = (board_move.to_row, board_move.to_col)
+                self.must_double_jump_coordinate = (board_move.move.to_row, board_move.move.to_col)
         if len(self._get_possible_moves()) == 0:
             self.winner = current_team
 

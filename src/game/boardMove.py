@@ -8,28 +8,26 @@ from game.pieceDirection import PieceDirection
 from game.board import Board
 from game.space import Space
 from game.teams import Team
+from game.move import Move
 
 class BoardMove(BaseModel):
-    to_row: int
-    to_col: int
-    from_row: int
-    from_col: int
+    move: Move
     board: Board
     active_team: Team
     must_double_jump_coordinate: Optional[Tuple[int, int]] = None
     
     @computed_field
     def from_space(self) -> Space:
-        return self.board.get_space(self.from_row, self.from_col)
+        return self.board.get_space(self.move.from_row, self.move.from_col)
     
     @computed_field
     def destination_space(self) -> Space:
-        return self.board.get_space(self.to_row, self.to_col)
+        return self.board.get_space(self.move.to_row, self.move.to_col)
 
     @computed_field
     def jump_space(self) -> Space:
-        jump_row = (self.from_row + self.to_row) // 2
-        jump_col = (self.from_col + self.to_col) // 2
+        jump_row = (self.move.from_row + self.move.to_row) // 2
+        jump_col = (self.move.from_col + self.move.to_col) // 2
         return self.board.get_space(jump_row, jump_col)
 
     def handle_move(self) -> Tuple[MoveStatus, str]:
@@ -38,7 +36,7 @@ class BoardMove(BaseModel):
             return move_status, explanation
 
         piece = self.from_space.get_piece()
-        if abs(self.from_col - self.to_col) == 2:
+        if abs(self.move.from_col - self.move.to_col) == 2:
             return self._handle_jump(piece)
 
         self._finalize_move(piece)
@@ -50,8 +48,8 @@ class BoardMove(BaseModel):
         if self.destination_space is None:
             return MoveStatus.INVALID, "Destination not on board"
         if self.must_double_jump_coordinate is not None and self.must_double_jump_coordinate != (
-            self.from_row,
-            self.from_col,
+            self.move.from_row,
+            self.move.from_col,
         ):
             return MoveStatus.INVALID, "Must perform double jump."
 
@@ -61,7 +59,7 @@ class BoardMove(BaseModel):
             return MoveStatus.INVALID, "It is not your turn"
 
         move_direction = (
-            PieceDirection.DOWN if self.to_row > self.from_row else PieceDirection.UP
+            PieceDirection.DOWN if self.move.to_row > self.move.from_row else PieceDirection.UP
         )
         if not piece.can_move_in_direction(move_direction):
             return MoveStatus.INVALID, "Wrong direction"
@@ -70,12 +68,12 @@ class BoardMove(BaseModel):
             return MoveStatus.INVALID, "Destination has another piece"
 
         if (
-            abs(self.from_col - self.to_col) != abs(self.from_row - self.to_row)
-            or abs(self.from_col - self.to_col) > 2
+            abs(self.move.from_col - self.move.to_col) != abs(self.move.from_row - self.move.to_row)
+            or abs(self.move.from_col - self.move.to_col) > 2
         ):
             return MoveStatus.INVALID, "Wrong destination"
 
-        if abs(self.from_col - self.to_col) == 2:
+        if abs(self.move.from_col - self.move.to_col) == 2:
             if not self._is_valid_jump(piece):
                 return MoveStatus.INVALID, "No enemy to jump over"
             return MoveStatus.JUMP, ""
@@ -99,17 +97,19 @@ class BoardMove(BaseModel):
 
     def _has_double_jump(self):
         spots_to_check = []
-        spots_to_check.append((self.to_row + 2, self.to_col + 2))
-        spots_to_check.append((self.to_row + 2, self.to_col - 2))
-        spots_to_check.append((self.to_row - 2, self.to_col + 2))
-        spots_to_check.append((self.to_row - 2, self.to_col - 2))
+        spots_to_check.append((self.move.to_row + 2, self.move.to_col + 2))
+        spots_to_check.append((self.move.to_row + 2, self.move.to_col - 2))
+        spots_to_check.append((self.move.to_row - 2, self.move.to_col + 2))
+        spots_to_check.append((self.move.to_row - 2, self.move.to_col - 2))
 
         for spot in spots_to_check:
             board_move = BoardMove(
-                from_row=self.to_row,
-                from_col=self.to_col,
-                to_row=spot[0],
-                to_col=spot[1],
+                move=Move(
+                    from_row=self.move.to_row,
+                    from_col=self.move.to_col,
+                    to_row=spot[0],
+                    to_col=spot[1],
+                ),
                 board=self.board,
                 active_team=self.active_team,
             )
@@ -121,5 +121,5 @@ class BoardMove(BaseModel):
     def _finalize_move(self, piece: Piece):
         self.from_space.delete_piece()
         self.destination_space.add_piece(piece)
-        if self.to_row == 0 or self.to_row == 7:
+        if self.move.to_row == 0 or self.move.to_row == 7:
             piece.crown()
