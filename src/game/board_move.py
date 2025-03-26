@@ -2,7 +2,7 @@ from typing import Optional, Tuple, Any
 
 from pydantic import BaseModel, computed_field
 
-from move_status import MoveStatus
+from game.move_status import MoveStatus
 from game.piece import Piece
 from game.pieceDirection import PieceDirection
 from game.board import Board

@@ -1,16 +1,16 @@
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 from game.board import Board
 from game.move import Move
 from game.teams import Team
-from game.boardMove import BoardMove
-from move_status import MoveStatus
+from game.board_move import BoardMove
+from game.move_status import MoveStatus
 
 class MoveGenerator:
     def __init__(self, board: Board):
         self.board = board
 
-    def get_possible_moves(self, active_team: Team) -> List[Move]:
+    def get_possible_moves(self, active_team: Team, must_double_jump_coordinate: Optional[Tuple[int, int]] = None) -> List[Move]:
         moves: List[Move] = []
         for from_row, row in enumerate(self.board.board):
             for from_col, space in enumerate(row):
@@ -19,6 +19,11 @@ class MoveGenerator:
                 piece = space.get_piece()
                 if not piece.on_team(active_team):
                     continue
+                    
+                # Skip if a double jump is required and this isn't the required position
+                if must_double_jump_coordinate and (from_row, from_col) != must_double_jump_coordinate:
+                    continue
+                    
                 destinations = self._get_possible_destinations(from_row, from_col)
                 for destination in destinations:
                     (to_row, to_col) = destination
@@ -31,6 +36,7 @@ class MoveGenerator:
                         ),
                         board=self.board,
                         active_team=active_team,
+                        must_double_jump_coordinate=must_double_jump_coordinate
                     )
                     [move_status, explanation] = board_move.is_valid_with_explanation()
                     

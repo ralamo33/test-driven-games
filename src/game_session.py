@@ -4,11 +4,11 @@ from typing import Optional
 from pydantic import BaseModel
 
 from game.board import Board
-from game.boardMove import BoardMove
+from game.board_move import BoardMove
 from game.move import Move
 from game.space import Space
 from game.move_generator import MoveGenerator
-from move_status import MoveStatus
+from game.move_status import MoveStatus
 from game.teams import Team
 
 
@@ -59,7 +59,7 @@ class GameSession(BaseModel):
 
     def _get_possible_moves(self):
         move_generator = MoveGenerator(self.board)
-        return move_generator.get_possible_moves(self.turn)
+        return move_generator.get_possible_moves(self.turn, self.must_double_jump_coordinate)
 
     def _is_over(self):
         return self.winner is not None
@@ -68,4 +68,6 @@ class GameSession(BaseModel):
         if self.winner is not None:
             return
         possible_moves = self._get_possible_moves()
+        if not possible_moves:
+            return
         self.move(random.choice(possible_moves))
