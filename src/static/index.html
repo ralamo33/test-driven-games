@@ -50,7 +50,7 @@
                            active:transform active:scale-95
                            transition-all duration-200 ease-in-out
                            font-semibold">
-                New12121 Game
+                New Game
             </button>
         </div>
 
@@ -70,7 +70,8 @@
             </div>
             <div class="flex justify-center">
                 <div class="relative">
-                    <div class="board grid grid-cols-8 gap-0 bg-board-dark p-3 rounded-lg shadow-xl border-8 border-board-dark"></div>
+                    <div class="board grid grid-cols-8 gap-0 bg-board-dark p-3 rounded-lg shadow-xl border-8 border-board-dark">
+                    </div>
                     <!-- Board coordinates -->
                     <div class="absolute -left-6 top-0 bottom-0 flex flex-col justify-around text-sm font-semibold">
                         <span>8</span><span>7</span><span>6</span><span>5</span>
@@ -95,7 +96,6 @@
                     renderGame(response);
                 } else if (evt.detail.requestConfig.url.includes('/move')) {
                     const response = JSON.parse(evt.detail.xhr.response);
-                    renderBoard(response.board);
                     updateGameInfo(response);
                 }
             });
@@ -108,72 +108,35 @@
                 container.querySelector('.game-id').textContent = gameData.game_id;
                 container.querySelector('.turn').textContent = gameData.turn;
                 
-                renderBoard(gameData.board);
-            }
+                // Update the board with the HTML
+                const board = container.querySelector('.board');
+                board.innerHTML = gameData.board;
 
-            function renderBoard(boardStr) {
-                const board = document.querySelector('.board');
-                board.innerHTML = '';
-                
-                const rows = boardStr.split('\n');
-                rows.forEach((row, i) => {
-                    const cells = row.split(' ');
-                    cells.forEach((cell, j) => {
-                        const space = document.createElement('div');
-                        const isLight = (i + j) % 2 === 0;
-                        space.className = `w-16 h-16 flex items-center justify-center cursor-pointer select-none
-                            transition-all duration-200 ease-in-out relative
-                            ${isLight ? 'bg-board-light' : 'bg-board-dark'}`;
-                        
-                        if (cell !== '_') {
-                            const piece = document.createElement('div');
-                            const isBlack = cell.toLowerCase() === 'b';
-                            const isKing = cell === cell.toUpperCase();
-                            
-                            piece.className = `w-12 h-12 rounded-full flex items-center justify-center
-                                ${isBlack ? 'bg-gray-900' : 'bg-gray-100'}
-                                border-4 ${isBlack ? 'border-gray-800' : 'border-white'}
-                                shadow-lg transition-transform relative
-                                ${isKing ? 'animate-glow' : ''}`;
-
-                            // Add inner circle for non-king pieces
-                            if (!isKing) {
-                                const innerCircle = document.createElement('div');
-                                innerCircle.className = `absolute w-8 h-8 rounded-full
-                                    ${isBlack ? 'bg-gray-800' : 'bg-white'}
-                                    border-2 ${isBlack ? 'border-gray-700' : 'border-gray-200'}`;
-                                piece.appendChild(innerCircle);
-                            } else {
-                                // Add crown symbol for king pieces
-                                const crown = document.createElement('div');
-                                crown.className = 'text-2xl';
-                                crown.innerHTML = '♔';
-                                crown.style.color = isBlack ? '#FFD700' : '#FFA500';
-                                piece.appendChild(crown);
-                            }
-                            
-                            space.appendChild(piece);
-                        }
-                        
-                        space.dataset.row = i;
-                        space.dataset.col = j;
-                        space.dataset.selected = 'false';
-                        space.onclick = handleSpaceClick;
-                        board.appendChild(space);
-                    });
-                });
+                // Set up polling for board updates
+                setInterval(() => {
+                    if (currentGameId) {
+                        fetch(`/api/games/${currentGameId}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                board.innerHTML = data.board;
+                                updateGameInfo(data);
+                            });
+                    }
+                }, 1000);
             }
 
             function updateGameInfo(gameData) {
                 const turn = document.querySelector('.turn');
                 const winnerText = document.querySelector('.winner-text');
                 
-                turn.textContent = gameData.turn;
-                if (gameData.is_over) {
-                    winnerText.textContent = `Winner: ${gameData.winner}!`;
-                    winnerText.classList.add('animate-bounce-short');
-                } else {
-                    winnerText.textContent = '';
+                if (turn) turn.textContent = gameData.turn;
+                if (winnerText) {
+                    if (gameData.is_over) {
+                        winnerText.textContent = `Winner: ${gameData.winner}!`;
+                        winnerText.classList.add('animate-bounce-short');
+                    } else {
+                        winnerText.textContent = '';
+                    }
                 }
             }
 

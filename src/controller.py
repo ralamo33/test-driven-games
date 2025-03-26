@@ -1,8 +1,8 @@
 from game.board import Board
 from game_session import GameSession
 from game.move import Move
-from team import Team
-from board_config import create_standard_board
+from game.team import Team
+from game.board_config import create_standard_board
 
 class Controller:
 

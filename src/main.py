@@ -1,12 +1,11 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
-from pydantic import BaseModel
 import os
+from typing import Dict
+
 from game_session import GameSession
 from game.move import Move
-from typing import Dict, Optional
-
 app = FastAPI()
 
 # Store active games in memory (in a real app, you'd use a database)
@@ -25,11 +24,11 @@ async def create_game():
     game = GameSession()
     game_id = str(len(games) + 1)  # Simple ID generation
     games[game_id] = game
-    return JSONResponse({
+    return {
         "game_id": game_id,
-        "board": game._display(),
+        "board": game.display_htmx(),
         "turn": str(game.turn)
-    })
+    }
 
 @app.post("/api/games/{game_id}/move")
 async def make_move(game_id: str, move: Move):
@@ -40,12 +39,12 @@ async def make_move(game_id: str, move: Move):
     try:
         game.move(move)
         
-        return JSONResponse({
-            "board": game._display(),
+        return {
+            "board": game.display_htmx(),
             "turn": str(game.turn),
             "is_over": game._is_over(),
             "winner": str(game.winner) if game._is_over() else None
-        })
+        }
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -55,12 +54,12 @@ async def get_game(game_id: str):
         raise HTTPException(status_code=404, detail="Game not found")
     
     game = games[game_id]
-    return JSONResponse({
-        "board": game._display(),
+    return {
+        "board": game.display_htmx(),
         "turn": str(game.turn),
         "is_over": game._is_over(),
         "winner": str(game.winner) if game._is_over() else None
-    })
+    }
 
 if __name__ == "__main__":
     import uvicorn

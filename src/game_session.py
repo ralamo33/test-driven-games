@@ -7,7 +7,7 @@ from game.board import Board
 from game.board_move import BoardMove
 from game.move import Move
 from game.space import Space
-from game.move_generator import MoveGenerator
+from game.possible_moves import PossibleMoves
 from game.move_status import MoveStatus
 from game.team import Team
 
@@ -37,6 +37,9 @@ class GameSession(BaseModel):
                 self.must_double_jump_coordinate = (board_move.move.to_row, board_move.move.to_col)
         if len(self._get_possible_moves()) == 0:
             self.winner = current_team
+    
+    def display_htmx(self):
+        return self.board.display_htmx()
 
     def _get_space(self, row, col) -> Space:
         return self.board.get_space(row, col)
@@ -58,7 +61,7 @@ class GameSession(BaseModel):
             self.turn = Team.WHITE
 
     def _get_possible_moves(self):
-        move_generator = MoveGenerator(self.board)
+        move_generator = PossibleMoves(self.board)
         return move_generator.get_possible_moves(self.turn, self.must_double_jump_coordinate)
 
     def _is_over(self):

@@ -6,7 +6,7 @@ from game.team import Team
 from game.board_move import BoardMove
 from game.move_status import MoveStatus
 
-class MoveGenerator:
+class PossibleMoves:
     def __init__(self, board: Board):
         self.board = board
 
@@ -20,7 +20,6 @@ class MoveGenerator:
                 if not piece.on_team(active_team):
                     continue
                     
-                # Skip if a double jump is required and this isn't the required position
                 if must_double_jump_coordinate and (from_row, from_col) != must_double_jump_coordinate:
                     continue
                     
