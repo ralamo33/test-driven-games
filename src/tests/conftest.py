@@ -2,8 +2,8 @@ import pytest
 from game_session import GameSession
 from game.move import Move
 from game.piece import Piece
-from game.pieceDirection import PieceDirection
-from game.teams import Team
+from game.piece_direction import PieceDirection
+from game.team import Team
 
 @pytest.fixture
 def game():

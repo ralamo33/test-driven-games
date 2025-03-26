@@ -9,7 +9,7 @@ from game.move import Move
 from game.space import Space
 from game.move_generator import MoveGenerator
 from game.move_status import MoveStatus
-from game.teams import Team
+from game.team import Team
 
 
 class GameSession(BaseModel):

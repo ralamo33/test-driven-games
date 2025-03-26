@@ -1,7 +1,7 @@
 from game.piece import Piece
-from game.pieceDirection import PieceDirection
+from game.piece_direction import PieceDirection
 from game.space import Space
-from game.teams import Team
+from game.team import Team
 
 def test_blank_space():
     space = Space()

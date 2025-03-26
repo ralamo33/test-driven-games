@@ -1,6 +1,6 @@
 from game.move import Move
-from game.pieceDirection import PieceDirection
-from game.teams import Team
+from game.piece_direction import PieceDirection
+from game.team import Team
 
 def test_crown_piece(crowned_game):
     crowned_space = crowned_game._get_space(0, 1)

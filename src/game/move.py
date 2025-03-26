@@ -1,9 +1,9 @@
 from typing import Optional
 from pydantic.dataclasses import dataclass
 from game.move_status import MoveStatus
-from game.pieceDirection import PieceDirection
+from game.piece_direction import PieceDirection
 from game.space import Space
-from game.teams import Team
+from game.team import Team
 
 
 @dataclass

@@ -1,5 +1,5 @@
 from game.move import Move
-from game.teams import Team
+from game.team import Team
 
 def test_get_starting_moves(game):
     moves = game._get_possible_moves()

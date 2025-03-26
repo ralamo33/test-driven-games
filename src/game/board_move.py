@@ -4,10 +4,10 @@ from pydantic import BaseModel, computed_field
 
 from game.move_status import MoveStatus
 from game.piece import Piece
-from game.pieceDirection import PieceDirection
+from game.piece_direction import PieceDirection
 from game.board import Board
 from game.space import Space
-from game.teams import Team
+from game.team import Team
 from game.move import Move
 
 class BoardMove(BaseModel):

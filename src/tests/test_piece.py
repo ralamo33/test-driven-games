@@ -1,5 +1,5 @@
-from game.pieceDirection import PieceDirection
-from game.teams import Team
+from game.piece_direction import PieceDirection
+from game.team import Team
 
 def test_piece_direction(white_piece):
     assert white_piece.can_move_in_direction(PieceDirection.DOWN)

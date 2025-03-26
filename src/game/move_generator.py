@@ -2,7 +2,7 @@ from typing import List, Tuple, Optional
 
 from game.board import Board
 from game.move import Move
-from game.teams import Team
+from game.team import Team
 from game.board_move import BoardMove
 from game.move_status import MoveStatus
 
