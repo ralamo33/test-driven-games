@@ -2,13 +2,13 @@ from game.board import Board
 from game_session import GameSession
 from game.move import Move
 from game.teams import Team
-
+from board_config import create_standard_board
 
 class Controller:
 
     def play_checkers(self):
         try:
-            game = GameSession(board=Board(), team=Team.WHITE)
+            game = GameSession(board=Board(board=create_standard_board()), team=Team.WHITE)
             while not game._is_over():
                 print(game._display())
                 print("\n\n")

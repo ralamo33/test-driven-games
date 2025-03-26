@@ -80,7 +80,7 @@ class BoardMove(BaseModel):
 
         return MoveStatus.MOVE, ""
 
-    def _handle_jump(self, piece) -> tuple[MoveStatus, str]:
+    def _handle_jump(self, piece: Piece) -> tuple[MoveStatus, str]:
         if not self._is_valid_jump(piece):
             return MoveStatus.INVALID, "No enemy to jump over"
         self.jump_space.delete_piece()
@@ -89,13 +89,13 @@ class BoardMove(BaseModel):
             return MoveStatus.JUMP_WITH_DOUBLE_JUMP, ""
         return MoveStatus.JUMP, ""
 
-    def _is_valid_jump(self, piece):
+    def _is_valid_jump(self, piece: Piece) -> bool:
         if self.jump_space.is_empty() or not self.destination_space.is_empty():
             return False
         jump_piece = self.jump_space.get_piece()
         return piece.is_enemy(jump_piece)
 
-    def _has_double_jump(self):
+    def _has_double_jump(self) -> bool:
         spots_to_check = []
         spots_to_check.append((self.move.to_row + 2, self.move.to_col + 2))
         spots_to_check.append((self.move.to_row + 2, self.move.to_col - 2))
@@ -118,7 +118,7 @@ class BoardMove(BaseModel):
                 return True
         return False
 
-    def _finalize_move(self, piece: Piece):
+    def _finalize_move(self, piece: Piece) -> None:
         self.from_space.delete_piece()
         self.destination_space.add_piece(piece)
         if self.move.to_row == 0 or self.move.to_row == 7:

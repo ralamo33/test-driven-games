@@ -7,6 +7,7 @@ from game.board import Board
 from game.boardMove import BoardMove
 from game.move import Move
 from game.space import Space
+from game.move_generator import MoveGenerator
 from move_status import MoveStatus
 from game.teams import Team
 
@@ -57,7 +58,8 @@ class GameSession(BaseModel):
             self.turn = Team.WHITE
 
     def _get_possible_moves(self):
-        return self.board.get_possible_moves(self)
+        move_generator = MoveGenerator(self.board)
+        return move_generator.get_possible_moves(self.turn)
 
     def _is_over(self):
         return self.winner is not None
